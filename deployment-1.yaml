@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-1
+  labels:
+    app: hello
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      terminationGracePeriodSeconds: 40
+      containers:
+      - name: sidecar
+        image: busybox:latest
+        command:
+          - /bin/sh
+          - -c
+          - sleep 3600
+        ports:
+        - containerPort: 80
+        # lifecycle:
+        #   preStop:
+        #     exec:
+        #       command: ["/bin/sh", "-c", "sleep", "10"]
+      - name: main
+        image: busybox:latest
+        command:
+          - /bin/sh
+          - -c
+          - sleep 3600
+        ports:
+        - containerPort: 8080
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep", "20"]
